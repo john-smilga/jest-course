@@ -30,8 +30,7 @@ out/
 ._*
 .Spotlight-V100
 .Trashes
-ehthumbs.db
-Thumbs.db
+
 
 # Logs
 logs/
@@ -47,10 +46,8 @@ temp/
 
 # Optional: Language-specific
 # Python
-__pycache__/
 *.py[cod]
 *.so
-venv/
 .env/
 
 # Java
