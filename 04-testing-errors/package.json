@@ -17,6 +17,8 @@
     "ts-node": "^10.9.2"
   },
   "dependencies": {
+    "@types/chalk": "^0.4.31",
+    "chalk": "^4.1.2",
     "jose": "4.15"
   }
 }

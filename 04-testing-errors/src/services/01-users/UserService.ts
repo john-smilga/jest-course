@@ -2,7 +2,10 @@
 
 import { NewsletterService } from './NewsletterService';
 import { UserRepository } from './UserRepository';
-
+import { CustomLogger } from '../../utils/CustomLogger';
+import { AppCodes } from '../../utils/AppCodes';
+import { CustomError } from '../../utils/CustomError';
+import { HttpCodes } from '../../utils/HttpCodes';
 export class UserService {
   constructor(private name: string, private email: string) {}
 
@@ -10,10 +13,20 @@ export class UserService {
     try {
       const user = await UserRepository.createUser(this.name, this.email);
       await NewsletterService.subscribeUser(user);
+      CustomLogger.info(
+        'UserService registerUser',
+        AppCodes.REGISTER_USER_SUCCESS,
+        {
+          user,
+        }
+      );
       return { msg: 'user registered successfully' };
     } catch (error) {
-      // return { msg: 'failed to register user' };
-      throw new Error('failed to register user');
+      CustomError.throwError(
+        HttpCodes.INTERNAL_SERVER_ERROR,
+        AppCodes.REGISTER_USER_FAILED,
+        'failed to register user'
+      );
     }
   }
 }

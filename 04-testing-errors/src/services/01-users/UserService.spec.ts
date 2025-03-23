@@ -2,7 +2,10 @@
 import { UserService } from './UserService';
 import { NewsletterService } from './NewsletterService';
 import { UserRepository } from './UserRepository';
-
+import { CustomError } from '../../utils/CustomError';
+import { AppCodes } from '../../utils/AppCodes';
+import { HttpCodes } from '../../utils/HttpCodes';
+import { CustomLogger } from '../../utils/CustomLogger';
 describe('UserService', () => {
   const successResponse = { msg: 'user registered successfully' };
   const errorResponse = { msg: 'failed to register user' };
@@ -18,10 +21,13 @@ describe('UserService', () => {
 
   let createUserSpy: jest.SpyInstance;
   let subscribeUserSpy: jest.SpyInstance;
-
+  let customErrorSpy: jest.SpyInstance;
   beforeEach(() => {
     createUserSpy = jest.spyOn(UserRepository, 'createUser');
     subscribeUserSpy = jest.spyOn(NewsletterService, 'subscribeUser');
+    customErrorSpy = jest.spyOn(CustomError, 'throwError');
+    CustomLogger.error = jest.fn();
+    CustomLogger.info = jest.fn();
   });
 
   afterEach(() => {
@@ -51,8 +57,11 @@ describe('UserService', () => {
       await userService.registerUser();
       fail('Should have thrown an error');
     } catch (error) {
-      expect(error).toBeInstanceOf(Error);
-      expect((error as Error).message).toBe('failed to register user');
+      expect(customErrorSpy).toHaveBeenCalledWith(
+        HttpCodes.INTERNAL_SERVER_ERROR,
+        AppCodes.REGISTER_USER_FAILED,
+        'failed to register user'
+      );
     }
   });
 });

@@ -4,7 +4,6 @@ const main = async () => {
   const input = { name: 'John', email: 'test@test.com' };
   const userService = new UserService(input.name, input.email);
   const result = await userService.registerUser();
-  console.log('User Service result : ', result);
 };
 
 main();
