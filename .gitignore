@@ -43,7 +43,7 @@ coverage/
 # Temporary files
 tmp/
 temp/
-
+temp.md
 # Optional: Language-specific
 # Python
 *.py[cod]

@@ -23,15 +23,9 @@ This generates a `package.json` file, which will store your project's dependenci
 
 ## 3. Install Required Packages
 
-Install `ts-node`, which allows running TypeScript files directly in Node.js:
-
 ```sh
-npm install ts-node
+npm install --save-dev ts-node jest ts-jest @types/jest ts-node
 ```
-
-Next, install Jest and the necessary TypeScript-related packages as development dependencies:
-
-    npm install --save-dev jest ts-jest @types/jest ts-node
 
 - `jest` - The core testing framework.
 - `ts-jest` - A TypeScript preprocessor for Jest.
