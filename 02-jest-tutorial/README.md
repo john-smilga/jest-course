@@ -7,6 +7,12 @@ Project overview :
 - `src/__tests__` - Directory where our test files will be written
 - `README.md` - Documentation with notes, instructions, and explanations
 
+Install dependencies
+
+```sh
+npm i
+```
+
 ## Test File Location
 
 Jest provides a few default methods for locating test files:
