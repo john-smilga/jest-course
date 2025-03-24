@@ -240,7 +240,7 @@ describe('Utility Functions', () => {
   it('creates user object with correct properties', () => {
     const user = createUser('John Doe', 30);
     expect(user).toEqual({ name: 'John Doe', age: 30 });
-    expect(user).not.toBe({ name: 'Susan Doe', age: 25 });
+    expect(user).not.Equal({ name: 'Susan Doe', age: 25 });
   });
 
   it('should create a jwt token', async () => {
