@@ -94,6 +94,7 @@ import { add } from '../utils';
 - It takes two arguments:
   - A string (`Utils`) that names the group of tests (for example the main class you are testing)
   - A callback function that contains the test cases.
+  - we can nest `describe`
 
 ### 3. Jest `it` Block (Alias for `test`)
 
@@ -125,14 +126,19 @@ expect(add(1, 2)).toBe(3);
 
 ## 5. Jest Matcher `.toBe()`
 
-- `.toBe(3)` is a Jest matcher that checks if the returned value **strictly equals** `3`.
+- `.toBe(3)` is a Jest matcher that checks if the returned value is **strictly equal** to the value being passed in.
+
+- This matcher should only be used for primitive values (numbers, strings, booleans, undefined, null).
+
 - This means:
 
   - It checks both **value** and **type** (like `===` in JavaScript).
   - Example:
 
-        expect(5).toBe(5); // ✅ Passes
-        expect(5).toBe('5'); // ❌ Fails (string vs number)
+```ts
+expect(5).toBe(5); // ✅ Passes
+expect(5).toBe('5'); // ❌ Fails (string vs number)
+```
 
 ### Empty Test Cases
 
@@ -167,7 +173,6 @@ This pattern ensures that tests are **structured, easy to read, and clearly sepa
 describe('add function', () => {
   it('should return the sum of two numbers', () => {
     expect(add(2, 3)).toBe(5);
-    expect(add(10, 20)).toBe(30);
   });
 });
 ```
@@ -240,7 +245,7 @@ describe('Utility Functions', () => {
   it('creates user object with correct properties', () => {
     const user = createUser('John Doe', 30);
     expect(user).toEqual({ name: 'John Doe', age: 30 });
-    expect(user).not.Equal({ name: 'Susan Doe', age: 25 });
+    expect(user).not.toEqual({ name: 'Susan Doe', age: 25 });
   });
 
   it('should create a jwt token', async () => {
