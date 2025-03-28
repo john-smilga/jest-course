@@ -137,6 +137,14 @@ The key difference is that stubs are just responders (return what we tell them t
 
 ## Refactor
 
+An alternative to `console.log()` specifically for tests, as it is already being used in the actual code.
+
+```ts
+ checkStock(_productId: string): boolean {
+    return this.inStock;
+  }
+```
+
 ```ts
 import { OrderService } from './OrderService';
 
