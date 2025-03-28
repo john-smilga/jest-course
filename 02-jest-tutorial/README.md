@@ -386,8 +386,14 @@ Jest provides several lifecycle hooks to manage test setup and teardown efficien
 - **`beforeAll`** – Runs once before all tests in a suite, ideal for expensive setup operations.
 - **`afterAll`** – Runs once after all tests in a suite, useful for global teardown like closing connections.
 
-| Without Hooks                                  | With Hooks                                        |
-| ---------------------------------------------- | ------------------------------------------------- |
-| Manually sets up test conditions in every test | Automates setup and cleanup for better efficiency |
-| Repetitive and cluttered code                  | More structured and maintainable test cases       |
-| Harder to manage dependencies                  | Ensures consistency across multiple tests         |
+Without Hooks ❌:
+
+- Manually sets up test conditions in every test 🛠️
+- Repetitive and cluttered code 🌀
+- Harder to manage dependencies 😓
+
+With Hooks ✅:
+
+- Automates setup and cleanup for better efficiency ⚡
+- More structured and maintainable test cases 🧹
+- Ensures consistency across multiple tests 🔄
