@@ -135,6 +135,85 @@ A **Fake** is a working implementation with real logic, but simplified for testi
 
 The key difference is that stubs are just responders (return what we tell them to), while fakes have actual working logic (but simplified for testing).
 
+## Refactor
+
+```ts
+import { OrderService } from './OrderService';
+
+// Stub Inventory Service
+class InventoryServiceStub {
+  private inStock: boolean = true;
+
+  setInStock(value: boolean) {
+    this.inStock = value;
+  }
+
+  checkStock(productId: string): boolean {
+    console.log(productId);
+    return this.inStock;
+  }
+}
+
+// Fake Payment Gateway for testing
+class FakePaymentGateway {
+  private transactions: { amount: number; status: string }[] = [];
+
+  processPayment(amount: number): string {
+    this.transactions.push({ amount, status: 'success' });
+    return `Processed payment of $${amount}`;
+  }
+
+  getTransactions(): { amount: number; status: string }[] {
+    return this.transactions;
+  }
+}
+
+describe('OrderService', () => {
+  let fakePaymentGateway: FakePaymentGateway;
+  let inventoryStub: InventoryServiceStub;
+  let orderService: OrderService;
+  let amount: number;
+  let productId: string;
+
+  beforeEach(() => {
+    fakePaymentGateway = new FakePaymentGateway();
+    inventoryStub = new InventoryServiceStub();
+    orderService = new OrderService(fakePaymentGateway, inventoryStub);
+    amount = 100; // Default amount for tests
+    productId = 'PROD123'; // Default product ID for tests
+  });
+
+  test('processes payment and calculates bonus points correctly when in stock', () => {
+    const result = orderService.checkout(amount, productId);
+
+    expect(result).toBe('Processed payment of $100 - Earned 10 bonus points!');
+    expect(fakePaymentGateway.getTransactions()).toEqual([
+      { amount: 100, status: 'success' },
+    ]);
+  });
+
+  test('fails order when product is out of stock', () => {
+    inventoryStub.setInStock(false);
+
+    const result = orderService.checkout(amount, productId);
+
+    expect(result).toBe('Order failed: Product out of stock');
+    expect(fakePaymentGateway.getTransactions()).toEqual([]); // No payment should be processed
+  });
+
+  test('handles decimal amounts correctly for bonus points', () => {
+    amount = 55.99; // Override default amount for this test
+
+    const result = orderService.checkout(amount, productId);
+
+    expect(result).toBe('Processed payment of $55.99 - Earned 5 bonus points!');
+    expect(fakePaymentGateway.getTransactions()).toEqual([
+      { amount: 55.99, status: 'success' },
+    ]);
+  });
+});
+```
+
 ## Spies and Mocks
 
 Let's cover Spies first, as they are generally more versatile and easier to understand. Spies and Mocks are very similar in nature, so their use cases and terminology often overlap in testing
