@@ -67,7 +67,7 @@ class InventoryServiceStub {
     this.inStock = value;
   }
 
-  checkStock(productId: string): boolean {
+  checkStock(_productId: string): boolean {
     return this.inStock;
   }
 }
