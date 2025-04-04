@@ -196,7 +196,7 @@ describe('OrderService', () => {
 
     expect(result).toBe('Processed payment of $100 - Earned 10 bonus points!');
     expect(fakePaymentGateway.getTransactions()).toEqual([
-      { amount: 100, status: 'success' },
+      { amount, status: 'success' },
     ]);
   });
 
@@ -216,7 +216,7 @@ describe('OrderService', () => {
 
     expect(result).toBe('Processed payment of $55.99 - Earned 5 bonus points!');
     expect(fakePaymentGateway.getTransactions()).toEqual([
-      { amount: 55.99, status: 'success' },
+      { amount, status: 'success' },
     ]);
   });
 });
