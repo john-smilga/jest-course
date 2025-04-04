@@ -8,6 +8,7 @@ class PaymentGateway {
 // Real Inventory Service
 class InventoryService {
   checkStock(productId: string): boolean {
+    console.log(productId);
     // In real life, this would check a database
     return true;
   }
