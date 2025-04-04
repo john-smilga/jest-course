@@ -259,7 +259,11 @@ const user = {
     return { id: userId, name: 'John' };
   },
 };
+```
 
+**jest.spyOn**
+
+```ts
 describe('Spy mocking examples', () => {
   it('uses mockReturnValue for sync functions', () => {
     jest.spyOn(user, 'getRole').mockReturnValue('guest');
@@ -506,6 +510,12 @@ export const user = {
 };
 ```
 
+## Mock Flavors in Jest
+
+Jest provides several ways to create and use mocks
+
+services/03-users/user.spec.ts
+
 ```ts
 import { user } from './user';
 
@@ -515,25 +525,67 @@ describe('User mocking approaches', () => {
     user.getRole = jest.fn().mockReturnValue('guest');
 
     expect(user.getRole()).toBe('guest'); // ✅ Works
+    // coming from the original implementation
     expect(user.getName()).toBe('John'); // ✅ Works
     expect(user.getEmail()).toBe('john@example.com'); // ✅ Works
   });
 });
 ```
 
+`jest.mock()` is a powerful function that replaces an entire module with a mock version, allowing you to control its behavior in tests. It takes two arguments:
+
+1. The path to the module you want to mock
+2. An optional factory function that returns your custom mock implementation
+
+Example:
+
 ```ts
-/// This completely replaces the user module
-// Only getRole is defined, other methods will be undefined!
+import { myModule } from './myModule';
+
+// Basic usage - all exports become jest.fn()
+jest.mock('./myModule');
+
+// With custom implementation
+jest.mock('./myModule', () => ({
+  someFunction: jest.fn().mockReturnValue('mocked'),
+  someValue: 'mock value',
+}));
+```
+
+```ts
 import { user } from './user';
+
+jest.mock('./user');
+
+// Result:
+// {
+//   user: {
+//     getRole: jest.fn(), // returns undefined
+//     getName: jest.fn(), // returns undefined
+//     getEmail: jest.fn() // returns undefined
+//   }
+// }
+console.log(user);
+describe('User mocking approaches', () => {
+  it('mocks single method using jest.fn()', () => {
+    // make typescript happy
+    (user.getRole as jest.Mock).mockReturnValue('guest');
+
+    expect(user.getRole()).toBe('guest');
+    // this will fail because it's now undefined
+    // expect(user.getName()).toBe('John');
+  });
+});
+```
+
+When using `jest.mock()`, the factory function in the second argument completely replaces the original module with a mock object, so all methods not explicitly defined in the mock will be undefined and the mock structure must match the original module.
+
+```ts
+import { user } from './user';
+
 jest.mock('./user', () => ({
   user: {
-    // change the getRole method to return 'guest'
     getRole: jest.fn().mockReturnValue('guest'),
-    // we can also to this :
-    // getRole: (): string => 'guest',
-    // but it won't have all of the mock benefits (tracking calls, args, etc)
-    getName: jest.fn().mockReturnValue('John'),
-    getEmail: jest.fn().mockReturnValue('john@example.com'),
   },
 }));
 
@@ -545,7 +597,69 @@ describe('User mocking', () => {
     // These will fail with "user.getName is not a function"
     // because our mock didn't include these methods
     expect(user.getName()).toBe('John'); // ❌ Error!
-    expect(user.getEmail()).toBe('john@example.com'); // ❌ Error!
+  });
+});
+```
+
+```ts
+import { user } from './user';
+jest.mock('./user', () => ({
+  user: {
+    getRole: jest.fn().mockReturnValue('guest'),
+    getName: jest.fn().mockReturnValue('peter'),
+    // we can also to this :
+    getEmail: (): string => 'john@example.com',
+    // but it won't have all of the mock benefits (tracking calls, args, etc)
+  },
+}));
+
+describe('User mocking', () => {
+  it('shows mock gotcha', () => {
+    expect(user.getRole()).toBe('guest');
+    expect(user.getName()).toBe('peter');
+    expect(user.getEmail()).toBe('john@example.com');
+    // will fail because we didn't mock the getEmail method
+    expect(user.getEmail).toHaveBeenCalled();
+  });
+});
+```
+
+# Working with External Modules in Jest
+
+Jest allows us to mock and spy on both built-in Node.js modules and third-party modules (like `console`, `axios`, etc.), and in this example, we'll explore how to do this with the built-in `fs` (File System) module.
+
+```ts
+import fs from 'fs';
+
+jest.mock('fs');
+
+describe('File System with Mock', () => {
+  it('should mock file reading', () => {
+    const mockContent = 'file content';
+    // make typescript happy
+    (fs.readFileSync as jest.Mock).mockReturnValue(mockContent);
+
+    const content = fs.readFileSync('test.txt', 'utf-8');
+    expect(content).toBe(mockContent);
+  });
+});
+```
+
+```ts
+import fs from 'fs';
+
+describe('File System with Spy', () => {
+  it('should spy on file reading', () => {
+    const mockContent = 'file content';
+    const spy = jest.spyOn(fs, 'readFileSync').mockReturnValue(mockContent);
+
+    const content = fs.readFileSync('test.txt', 'utf-8');
+
+    expect(content).toBe(mockContent);
+    expect(spy).toHaveBeenCalledWith('test.txt', 'utf-8');
+
+    // Restore original implementation
+    spy.mockRestore();
   });
 });
 ```
