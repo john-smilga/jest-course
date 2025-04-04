@@ -1,6 +1,7 @@
 const newsletterUrl = 'https://www.course-api.com/jest-course/newsletter';
 
-import { type User } from './UserRepository';
+import { type User } from './DatabaseService';
+
 export class NewsletterService {
   static async subscribeUser(user: User): Promise<{ msg: string }> {
     const response = await fetch(newsletterUrl, {

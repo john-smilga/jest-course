@@ -391,7 +391,7 @@ describe('User role tests', () => {
 Review the following files in the users module:
 
 - `src/services/03-users/UserService.ts`
-- `src/services/03-users/UserRepository.ts`
+- `src/services/03-users/DatabaseService.ts`
 - `src/services/03-users/NewsletterService.ts`
 
 You can verify the logic by running the command `npm run dev`
@@ -403,7 +403,7 @@ userService-spy.spec.ts
 // UserService.spec.ts
 import { UserService } from './UserService';
 import { NewsletterService } from './NewsletterService';
-import { UserRepository } from './UserRepository';
+import { DatabaseService } from './DatabaseService';
 
 describe('UserService', () => {
   const successResponse = { msg: 'user registered successfully' };
@@ -428,7 +428,7 @@ describe('UserService', () => {
   let subscribeUserSpy: jest.SpyInstance;
 
   beforeEach(() => {
-    createUserSpy = jest.spyOn(UserRepository, 'createUser');
+    createUserSpy = jest.spyOn(DatabaseService, 'createUser');
     subscribeUserSpy = jest.spyOn(NewsletterService, 'subscribeUser');
   });
 
