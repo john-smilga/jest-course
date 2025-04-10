@@ -1,5 +1,28 @@
 # Error Testing Patterns with Jest
 
+- UserService.ts
+
+```ts
+// UserService.ts
+
+import { NewsletterService } from './NewsletterService';
+import { DatabaseService } from './DatabaseService';
+
+export class UserService {
+  constructor(private name: string, private email: string) {}
+
+  async registerUser(): Promise<{ msg: string }> {
+    try {
+      const user = await DatabaseService.createUser(this.name, this.email);
+      await NewsletterService.subscribeUser(user);
+      return { msg: 'user registered successfully' };
+    } catch (error) {
+      throw new Error('failed to register user');
+    }
+  }
+}
+```
+
 Review the following files in the users module:
 
 - `src/services/01-users/UserService.ts`
@@ -7,6 +30,9 @@ Review the following files in the users module:
 - `src/services/01-users/NewsletterService.ts`
 
 You can verify the logic by running the command `npm run dev`
+
+## Challenge
+
 Create a test file and mock external API calls using the spyOn method
 
 UserService.spec.ts
@@ -15,11 +41,10 @@ UserService.spec.ts
 // UserService.spec.ts
 import { UserService } from './UserService';
 import { NewsletterService } from './NewsletterService';
-import { UserRepository } from './UserRepository';
+import { DatabaseService } from './DatabaseService';
 
 describe('UserService', () => {
   const successResponse = { msg: 'user registered successfully' };
-  const errorResponse = { msg: 'failed to register user' };
 
   const mockName = 'John Doe';
   const mockEmail = 'test@test.com';
@@ -34,7 +59,7 @@ describe('UserService', () => {
   let subscribeUserSpy: jest.SpyInstance;
 
   beforeEach(() => {
-    createUserSpy = jest.spyOn(UserRepository, 'createUser');
+    createUserSpy = jest.spyOn(DatabaseService, 'createUser');
     subscribeUserSpy = jest.spyOn(NewsletterService, 'subscribeUser');
   });
 
@@ -68,9 +93,13 @@ it('should throw error message if name is not provided', async () => {
     return Promise.reject('Name is required');
   });
 
+  // for async function
+  await expect(userService.registerUser()).rejects.toThrow();
   await expect(userService.registerUser()).rejects.toThrow(
     'failed to register user'
   );
+  // for sync function
+  // expect(() => userService.registerUser()).toThrow();
 });
 ```
 
@@ -121,17 +150,24 @@ Review the following files in the utils folder:
 Update `UserService.ts`
 
 ```ts
-// other imports
+// UserService.ts
+
+import { NewsletterService } from './NewsletterService';
+import { DatabaseService } from './DatabaseService';
+// EXTRA IMPORTS
 import { AppCodes } from '../../utils/AppCodes';
 import { CustomError } from '../../utils/CustomError';
 import { HttpCodes } from '../../utils/HttpCodes';
+import { CustomLogger } from '../../utils/CustomLogger';
+
 export class UserService {
   constructor(private name: string, private email: string) {}
 
   async registerUser(): Promise<{ msg: string }> {
     try {
-      const user = await UserRepository.createUser(this.name, this.email);
+      const user = await DatabaseService.createUser(this.name, this.email);
       await NewsletterService.subscribeUser(user);
+      // ADD CUSTOM LOGGER
       CustomLogger.info(
         'UserService registerUser',
         AppCodes.REGISTER_USER_SUCCESS,
@@ -141,6 +177,7 @@ export class UserService {
       );
       return { msg: 'user registered successfully' };
     } catch (error) {
+      // THROW CUSTOM ERROR
       CustomError.throwError(
         HttpCodes.INTERNAL_SERVER_ERROR,
         AppCodes.REGISTER_USER_FAILED,
@@ -162,16 +199,16 @@ In this test case, we're using Jest's spy functionality to verify the exact beha
 This granular level of testing ensures our error handling remains consistent and properly categorized throughout the application.
 
 ```ts
-// other imports
-
+import { UserService } from './UserService';
+import { NewsletterService } from './NewsletterService';
+import { DatabaseService } from './DatabaseService';
+// EXTRA IMPORTS
 import { CustomError } from '../../utils/CustomError';
 import { AppCodes } from '../../utils/AppCodes';
 import { HttpCodes } from '../../utils/HttpCodes';
-import { CustomLogger } from '../../utils/CustomLogger';
+
 describe('UserService', () => {
   const successResponse = { msg: 'user registered successfully' };
-  const errorResponse = { msg: 'failed to register user' };
-
   const mockName = 'John Doe';
   const mockEmail = 'test@test.com';
   const mockUser = {
@@ -183,12 +220,12 @@ describe('UserService', () => {
 
   let createUserSpy: jest.SpyInstance;
   let subscribeUserSpy: jest.SpyInstance;
-  // create new spy instance
+  // CREATE NEW SPY INSTANCE
   let customErrorSpy: jest.SpyInstance;
   beforeEach(() => {
-    createUserSpy = jest.spyOn(UserRepository, 'createUser');
+    createUserSpy = jest.spyOn(DatabaseService, 'createUser');
     subscribeUserSpy = jest.spyOn(NewsletterService, 'subscribeUser');
-    // setup spyOn
+    // SETUP jest.spyOn
     customErrorSpy = jest.spyOn(CustomError, 'throwError');
   });
 
@@ -196,6 +233,16 @@ describe('UserService', () => {
     jest.restoreAllMocks();
   });
 
+  it('should successfully register user and return success message', async () => {
+    const userService = new UserService(mockName, mockEmail);
+    createUserSpy.mockResolvedValue(mockUser);
+    subscribeUserSpy.mockResolvedValue({ msg: 'success' });
+    const result = await userService.registerUser();
+
+    expect(createUserSpy).toHaveBeenCalledWith(mockName, mockEmail);
+    expect(subscribeUserSpy).toHaveBeenCalledWith(mockUser);
+    expect(result).toEqual(successResponse);
+  });
   it('should return error message if name is not provided', async () => {
     const invalidInput = { name: '', email: mockEmail };
     const userService = new UserService(invalidInput.name, invalidInput.email);
@@ -208,7 +255,7 @@ describe('UserService', () => {
       await userService.registerUser();
       fail('Should have thrown an error');
     } catch (error) {
-      // check for specific error
+      // CHECK FOR SPECIFIC ERROR
       expect(customErrorSpy).toHaveBeenCalledWith(
         HttpCodes.INTERNAL_SERVER_ERROR,
         AppCodes.REGISTER_USER_FAILED,
@@ -231,7 +278,8 @@ it('should return error message if name is not provided', async () => {
 
   try {
     await userService.registerUser();
-    fail('Should have thrown an error');
+    // without fail test will pass
+    // fail('Should have thrown an error');
   } catch (error) {
     expect(customErrorSpy).toHaveBeenCalledWith(
       HttpCodes.INTERNAL_SERVER_ERROR,
@@ -248,7 +296,7 @@ When running test suites, having numerous log messages in the console can make i
 
 ```ts
 import { CustomLogger } from '../../utils/CustomLogger';
-
+// jest.mock('../../utils/CustomLogger');
 beforeEach(() => {
   // rest of the code
   CustomLogger.error = jest.fn();

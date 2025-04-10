@@ -7,7 +7,7 @@ export type User = {
   role: string;
 };
 
-export class UserRepository {
+export class DatabaseService {
   static async createUser(name: string, email: string): Promise<User> {
     const response = await fetch(usersUrl, {
       method: 'POST',
@@ -22,7 +22,7 @@ export class UserRepository {
     }
 
     const data = (await response.json()) as User;
-    console.log('UserRepository API Response : ', data);
+    console.log('DatabaseService API Response : ', data);
     return data;
   }
 }
