@@ -1,6 +1,7 @@
 import { AppCodes } from './AppCodes';
 import { CustomLogger } from './CustomLogger';
 import { HttpCodes } from './HttpCodes';
+
 export class CustomError extends Error {
   private constructor(
     public httpCode: HttpCodes,

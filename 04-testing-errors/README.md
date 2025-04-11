@@ -256,6 +256,7 @@ describe('UserService', () => {
       fail('Should have thrown an error');
     } catch (error) {
       // CHECK FOR SPECIFIC ERROR
+      expect(error).toBeInstanceOf(CustomError);
       expect(customErrorSpy).toHaveBeenCalledWith(
         HttpCodes.INTERNAL_SERVER_ERROR,
         AppCodes.REGISTER_USER_FAILED,
@@ -281,6 +282,7 @@ it('should return error message if name is not provided', async () => {
     // without fail test will pass
     // fail('Should have thrown an error');
   } catch (error) {
+    expect(error).toBeInstanceOf(CustomError);
     expect(customErrorSpy).toHaveBeenCalledWith(
       HttpCodes.INTERNAL_SERVER_ERROR,
       AppCodes.REGISTER_USER_FAILED,
