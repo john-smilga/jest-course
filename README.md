@@ -146,3 +146,17 @@ Jest is a powerful, easy-to-use JavaScript testing framework designed for simpli
   - Handle invalid user input (e.g. missing name).
   - Mock failed service interactions (e.g. subscription failure).
   - Validate logger and error service behavior.
+  - 
+## **Module 5: Hash Generator Testing Challenge**
+
+- Create a comprehensive test suite for the `HashGenerator` class, which generates secure, URL-safe hashes using a salt value.
+- Verify instance creation with `createHashGenerator()` and ensure it returns a properly constructed `HashGenerator` object.
+- Test instance uniqueness by confirming that repeated calls with the same salt produce different instances.
+- Validate URL safety of generated hashes by asserting they do not contain unsafe characters like `+`, `/`, or `=`.
+- Write tests to confirm hash consistency: the same input with the same salt should always return the same output.
+- Ensure input differentiation by checking that different inputs generate different hashes.
+- Demonstrate the influence of salt values by testing that identical inputs produce different hashes when salts differ.
+- Include an edge case test to verify that empty input strings do not cause the generator to throw errors.
+- Follow best practices like the Arrange-Act-Assert (AAA) pattern, use meaningful test names, and maintain test clarity and independence.
+- Understand and apply code coverage metrics in Jest, including configuration for collection, output reporting formats (`text`, `html`, `lcov`, etc.), and enforcing global coverage thresholds (commonly 80% for branches, functions, lines, and statements).
+- Learn how to include or exclude files from coverage reports using glob patterns, ensuring meaningful coverage for production code while excluding test files and setup scripts.
